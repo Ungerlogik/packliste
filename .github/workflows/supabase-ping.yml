@@ -1,0 +1,20 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Läuft alle 3 Tage um 03:00 Uhr nachts
+    - cron: '0 3 */3 * *'
+  workflow_dispatch: # Ermöglicht auch den manuellen Test über den GitHub-Tab "Actions"
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Ping to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          curl -X GET "${SUPABASE_URL}/rest/v1/packliste_store?select=id&limit=1" \
+          -H "apikey: ${SUPABASE_ANON_KEY}" \
+          -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"
