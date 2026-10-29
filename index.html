@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Packliste Familie Unger</title>
+<!-- Supabase JS Client per CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; color: #111827; overflow-x: hidden; }
+  button, input, select { font-family: inherit; font-size: 15px; }
+  .hidden { display: none !important; }
+
+  .topbar { background-color: #1e293b; color: #ffffff; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+  .topbar-title { font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+  .btn { border: none; border-radius: 6px; padding: 7px 11px; font-weight: 600; cursor: pointer; background-color: #334155; color: #ffffff; margin-left: 4px; }
+  .btn-primary { background-color: #2563eb; color: #ffffff; }
+  .btn-success { background-color: #16a34a; color: #ffffff; }
+  .btn-danger { background-color: #dc2626; color: #ffffff; }
+  .btn-light { background-color: #e5e7eb; color: #1f2937; }
+  .btn-sm { padding: 5px 8px; font-size: 13px; }
+
+  .container { max-width: 760px; margin: 0 auto; padding: 14px; }
+  .card { background: #ffffff; border-radius: 10px; padding: 14px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .card h2 { margin: 0 0 10px 0; font-size: 18px; color: #1e293b; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
+  .list-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; background: #f9fafb; }
+  .list-row-title { font-weight: 600; font-size: 16px; cursor: pointer; flex: 1; }
+  .list-row-meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  .season-bar { display: flex; margin-bottom: 10px; }
+  .season-btn { flex: 1; margin-right: 6px; padding: 8px 4px; border: 1px solid #d1d5db; background: #ffffff; color: #374151; border-radius: 6px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; }
+  .season-btn:last-child { margin-right: 0; }
+  .season-btn.active { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+
+  .workspace { display: flex; height: calc(100vh - 108px); overflow: hidden; }
+  .sidebar { width: 62px; background: #1e293b; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px 0 70px 0; flex-shrink: 0; }
+  .sidebar-item { display: block; width: 100%; text-align: center; padding: 10px 2px; color: #cbd5e1; cursor: pointer; border-left: 4px solid transparent; font-size: 22px; }
+  .sidebar-item.active { background: #334155; border-left-color: #38bdf8; color: #ffffff; }
+  .sidebar-badge { display: block; font-size: 10px; color: #94a3b8; margin-top: 2px; font-weight: 600; }
+  .sidebar-item.active .sidebar-badge { color: #38bdf8; }
+
+  .main-pane { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 90px 12px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .section-title { font-size: 18px; font-weight: 700; }
+
+  .mode-switch { display: flex; background: #0f172a; border-radius: 6px; padding: 2px; }
+  .mode-btn { border: none; background: transparent; color: #94a3b8; padding: 5px 10px; border-radius: 4px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .mode-btn.active { background: #2563eb; color: #ffffff; }
+
+  .item-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 12px; border-radius: 8px; margin-bottom: 7px; border: 1px solid #d1d5db; cursor: pointer; user-select: none; }
+  .item-plan-selected { background-color: #ffffff; color: #000000; font-weight: 600; border-color: #9ca3af; }
+  .item-plan-unselected { background-color: #e5e7eb; color: #6b7280; font-weight: 400; border-color: #d1d5db; }
+  .item-pack-open { background-color: #ffffff; color: #000000; font-weight: 600; }
+  .item-pack-done { background-color: #f0fdf4; color: #15803d; font-weight: 700; border-color: #86efac; }
+  .item-label { flex: 1; font-size: 16px; }
+  .item-Seasons { font-size: 11px; color: #9ca3af; margin-right: 8px; }
+  .item-delete { border: none; background: transparent; color: #9ca3af; font-size: 18px; padding: 0 4px; cursor: pointer; }
+
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; border-top: 1px solid #d1d5db; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; z-index: 95; }
+  .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
+  .modal { background: #ffffff; border-radius: 10px; max-width: 440px; width: 100%; padding: 16px; max-height: 90vh; overflow-y: auto; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .form-control { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; }
+  .checkbox-grid { display: flex; flex-wrap: wrap; }
+  .checkbox-pill { display: inline-block; margin: 0 8px 8px 0; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; cursor: pointer; }
+
+  @media print {
+    .topbar, .sidebar, .bottom-bar, .no-print { display: none !important; }
+    .workspace { height: auto; display: block; }
+    .main-pane { padding: 0; overflow: visible; }
+  }
+</style>
+</head>
+<body>
+
+<div id="view-home">
+  <div class="topbar">
+    <div class="topbar-title">🎒 Packliste Unger</div>
+    <div>
+      <button class="btn btn-sm" onclick="openSectionManager()">Bereiche ⚙️</button>
+      <button class="btn btn-sm btn-primary" onclick="openNewItemModal()">+ Item</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>🌤️ Aktuelle Jahreszeit</h2>
+      <div class="season-bar" id="home-season-bar"></div>
+    </div>
+    <div class="card">
+      <h2>📌 Aktuelle Packlisten (Temporär)</h2>
+      <div id="temp-lists-container"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; padding-bottom:8px; margin-bottom:10px;">
+        <h2 style="border:none; margin:0; padding:0;">📂 Kategorien (Grundstock)</h2>
+        <button class="btn btn-sm btn-primary" onclick="createEmptyCategoryPrompt()">+ Neue Kategorie</button>
+      </div>
+      <div id="categories-container"></div>
+    </div>
+  </div>
+</div>
+
+<div id="view-list" class="hidden">
+  <div class="topbar">
+    <button class="btn btn-sm" onclick="goHome()">← Menü</button>
+    <div class="topbar-title" id="active-list-title">Urlaub</div>
+    <div class="mode-switch">
+      <button class="mode-btn active" id="btn-mode-plan" onclick="setMode('plan')">Planen</button>
+      <button class="mode-btn" id="btn-mode-pack" onclick="setMode('pack')">Packen</button>
+    </div>
+    <button class="btn btn-sm" onclick="window.print()" title="Liste drucken">🖨️</button>
+  </div>
+
+  <div id="list-season-wrapper" style="background:#e2e8f0; padding:6px 10px;">
+    <div class="season-bar" id="list-season-bar" style="margin-bottom:0;"></div>
+  </div>
+
+  <div class="workspace">
+    <div class="sidebar" id="section-sidebar"></div>
+    <div class="main-pane" id="swipe-area">
+      <div class="section-header">
+        <button class="btn btn-light btn-sm" onclick="prevSection()">◀</button>
+        <div class="section-title" id="current-section-title">👕 Kleidung Toni</div>
+        <button class="btn btn-light btn-sm" onclick="nextSection()">▶</button>
+      </div>
+      <div id="items-container"></div>
+      <div style="margin-top: 14px;" class="no-print">
+        <button class="btn btn-light" style="width:100%; padding:10px;" onclick="openNewItemModal(true)">+ Neues Item in diesem Bereich anlegen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div id="status-counter" style="font-size:13px; font-weight:600; color:#4b5563;"></div>
+    <div><button class="btn btn-success" onclick="openSaveModal()">💾 Speichern...</button></div>
+  </div>
+</div>
+
+<div id="modal-save" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3>Packliste speichern</h3>
+    <button class="btn btn-primary" style="width:100%; padding:11px; margin-bottom:10px;" onclick="saveTemporaryList()">📌 Temporär speichern</button>
+    <button class="btn" style="width:100%; padding:11px; margin-bottom:10px; background:#0284c7;" onclick="overwriteCurrentCategory()">🔄 Kategorie „<span id="save-cat-name"></span>“ überschreiben</button>
+    <button class="btn" style="width:100%; padding:11px; margin-bottom:14px; background:#4f46e5;" onclick="saveAsNewCategory()">➕ Als neue Kategorie anlegen...</button>
+    <button class="btn btn-light" style="width:100%; padding:9px;" onclick="closeModal('modal-save')">Abbrechen</button>
+  </div>
+</div>
+
+<div id="modal-item" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3>Neues Item anlegen</h3>
+    <div class="form-group"><label>Bezeichnung</label><input type="text" id="new-item-name" class="form-control" placeholder="Name des Items"></div>
+    <div class="form-group"><label>Bereich</label><select id="new-item-section" class="form-control"></select></div>
+    <div class="form-group"><label>Kategorien</label><div id="new-item-categories" class="checkbox-grid"></div></div>
+    <div class="form-group"><label>Jahreszeiten</label><div id="new-item-seasons" class="checkbox-grid"></div></div>
+    <div style="display:flex; justify-content:flex-end;"><button class="btn btn-light" onclick="closeModal('modal-item')">Abbrechen</button><button class="btn btn-primary" onclick="saveNewItem()">Hinzufügen</button></div>
+  </div>
+</div>
+
+<div id="modal-sections" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3>Bereiche verwalten</h3>
+    <div id="sections-manager-list" style="margin-bottom:14px;"></div>
+    <div style="border-top:1px solid #e5e7eb; padding-top:12px;">
+      <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Neuen Bereich hinzufügen</label>
+      <div style="display:flex; margin-bottom:10px;"><input type="text" id="new-sec-icon" class="form-control" style="width:65px; margin-right:6px; text-align:center;" placeholder="🏕️"><input type="text" id="new-sec-name" class="form-control" placeholder="Name"></div>
+      <button class="btn btn-primary" style="width:100%; margin-left:0; margin-bottom:10px;" onclick="addSection()">+ Bereich anlegen</button>
+      <button class="btn btn-light" style="width:100%; margin-left:0;" onclick="closeModal('modal-sections')">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Supabase Konfiguration - hier deine Daten eintragen */
+var SUPABASE_URL = 'https://mytqctejngbalxpazikv.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15dHFjdGVqbmdiYWx4cGF6aWt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzgwNjAsImV4cCI6MjEwODg1NDA2MH0.0MZrhfVIoIgr47yde1vGCyahNx6F8ypQbL6oP06y2vo';
+var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+var SEASONS = ['Frühling', 'Sommer', 'Herbst', 'Winter'];
+var ALL_SEASONS = ['Frühling', 'Sommer', 'Herbst', 'Winter'];
+var WARM_SEASONS = ['Frühling', 'Sommer'];
+var COLD_SEASONS = ['Herbst', 'Winter'];
+var WINTER_ONLY = ['Winter'];
+var SUMMER_ONLY = ['Sommer'];
+
+function buildDefaultData() {
+  var categories = [
+    { id: 'urlaub', name: 'Urlaub' },
+    { id: 'kurzurlaub', name: 'Kurzurlaub' },
+    { id: 'peukert', name: 'Peukert' },
+    { id: 'klassenfahrt', name: 'Klassenfahrt' }
+  ];
+  var sections = [
+    { id: 'kleidung_toni', icon: '👕', name: 'Kleidung Toni' },
+    { id: 'kleidung_anna', icon: '👗', name: 'Kleidung Anna' },
+    { id: 'kleidung_cara', icon: '👧', name: 'Kleidung Cara' },
+    { id: 'kleidung_joel', icon: '👦', name: 'Kleidung Joel' },
+    { id: 'schuhe_toni', icon: '👞', name: 'Schuhe Toni' },
+    { id: 'schuhe_anna', icon: '👠', name: 'Schuhe Anna' },
+    { id: 'schuhe_cara', icon: '👟', name: 'Schuhe Cara' },
+    { id: 'schuhe_joel', icon: '🥾', name: 'Schuhe Joel' },
+    { id: 'draussen_toni', icon: '🧥', name: 'Draußen Toni' },
+    { id: 'draussen_anna', icon: '🧣', name: 'Draußen Anna' },
+    { id: 'draussen_cara', icon: '☔', name: 'Draußen Cara' },
+    { id: 'draussen_joel', icon: '🧤', name: 'Draußen Joel' },
+    { id: 'badesachen', icon: '🏊', name: 'Badesachen' },
+    { id: 'hygiene_toni', icon: '🪥', name: 'Hygieneartikel Toni' },
+    { id: 'hygiene_anna', icon: '🧴', name: 'Hygieneartikel Anna' },
+    { id: 'hygiene_cara', icon: '🪮', name: 'Hygieneartikel Cara' },
+    { id: 'hygiene_joel', icon: '👶', name: 'Hygieneartikel Joel' },
+    { id: 'bad', icon: '🚿', name: 'Bad' },
+    { id: 'schlaf', icon: '🛏️', name: 'Schlaf & Zubehör' },
+    { id: 'medikamente', icon: '💊', name: 'Medikamente & Co' },
+    { id: 'wickelzeug', icon: '🧷', name: 'Wickelzeug & Co' },
+    { id: 'essen_stillen', icon: '🍼', name: 'Essen & Stillen' },
+    { id: 'kueche', icon: '🍽️', name: 'Küche' },
+    { id: 'lebensmittel', icon: '🥖', name: 'Lebensmittel & Getränke' },
+    { id: 'reiseverpflegung', icon: '🥪', name: 'Reiseverpflegung' },
+    { id: 'unterwegs', icon: '🚼', name: 'Unterwegs' },
+    { id: 'geraete', icon: '🔌', name: 'Geräte' },
+    { id: 'unterhaltung', icon: '🎲', name: 'Freizeit & Spielzeug' },
+    { id: 'lehrmaterial', icon: '📚', name: 'Lehrmaterialien' },
+    { id: 'dokumente', icon: '📄', name: 'Dokumente & Finanzen' },
+    { id: 'sonstiges', icon: '🎒', name: 'Sonstiges & Geschenke' },
+    { id: 'vor_der_reise', icon: '🏠', name: 'Vor der Reise' }
+  ];
+  var ALL_CATS = ['urlaub', 'kurzurlaub', 'peukert', 'klassenfahrt'];
+  var URLAUB_KURZ_PEUK = ['urlaub', 'kurzurlaub', 'peukert'];
+  var URLAUB_ONLY = ['urlaub'];
+  var idCounter = 1;
+
+  function item(sec, name, cats, seasons) {
+    return { id: 'item_' + (idCounter++), sectionId: sec, name: name, categories: cats || ALL_CATS, seasons: seasons || ALL_SEASONS };
+  }
+
+  var items = [
+    item('kleidung_toni', 'Schlüpfer', ALL_CATS, ALL_SEASONS),
+    item('kleidung_toni', 'Unterhose / Unterhemd', ALL_CATS, COLD_SEASONS),
+    item('kleidung_toni', 'Socken / Strümpfe', ALL_CATS, ALL_SEASONS),
+    item('kleidung_toni', 'T-Shirts', ALL_CATS, ALL_SEASONS),
+    item('kleidung_toni', 'Pullover', ALL_CATS, ALL_SEASONS),
+    item('kleidung_toni', 'Fliesjacke', ALL_CATS, ALL_SEASONS),
+    item('kleidung_toni', 'kurze Hosen', ALL_CATS, WARM_SEASONS),
+    item('kleidung_toni', 'lange Hosen', ALL_CATS, ALL_SEASONS),
+    item('kleidung_toni', 'Wanderhose', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('kleidung_toni', 'Schlafsachen', ALL_CATS, ALL_SEASONS),
+
+    item('kleidung_anna', 'Schlüpfer', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'BH', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Still-BH', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Stillhemden', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Unterhemd / Unterhose', ALL_CATS, COLD_SEASONS),
+    item('kleidung_anna', 'Socken / Strümpfe', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Strumpfhosen / Leggins', ALL_CATS, COLD_SEASONS),
+    item('kleidung_anna', 'T-Shirts', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Pullover', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Fliesjacke', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Röcke', ALL_CATS, WARM_SEASONS),
+    item('kleidung_anna', 'Kleider', ALL_CATS, WARM_SEASONS),
+    item('kleidung_anna', 'kurze Hosen', ALL_CATS, WARM_SEASONS),
+    item('kleidung_anna', 'lange Hosen', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Halstuch', ALL_CATS, ALL_SEASONS),
+    item('kleidung_anna', 'Tuch Schultern / Tuch Stillen', ['urlaub'], ALL_SEASONS),
+    item('kleidung_anna', 'Schlafsachen', ALL_CATS, ALL_SEASONS),
+
+    item('kleidung_cara', 'Schlüpfer', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Hemden', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Bodies', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Bodyverlängerungen', ['kurzurlaub', 'peukert'], ALL_SEASONS),
+    item('kleidung_cara', 'T-Shirts', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Pullover', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Fliesjacke', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'kurze Hosen', ALL_CATS, WARM_SEASONS),
+    item('kleidung_cara', 'lange Hosen', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Strumpfhosen', ALL_CATS, COLD_SEASONS),
+    item('kleidung_cara', 'Kleider', ALL_CATS, WARM_SEASONS),
+    item('kleidung_cara', 'Socken', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Schlafsachen', ALL_CATS, ALL_SEASONS),
+    item('kleidung_cara', 'Schlafsack', ['kurzurlaub', 'peukert'], ALL_SEASONS),
+
+    item('kleidung_joel', 'Bodies', ALL_CATS, ALL_SEASONS),
+    item('kleidung_joel', 'Bodyverlängerungen', ['peukert'], ALL_SEASONS),
+    item('kleidung_joel', 'Pullover', ALL_CATS, ALL_SEASONS),
+    item('kleidung_joel', 'dicke Pullover', ALL_CATS, COLD_SEASONS),
+    item('kleidung_joel', 'Strumpfhosen', ALL_CATS, COLD_SEASONS),
+    item('kleidung_joel', 'Hosen', ALL_CATS, ALL_SEASONS),
+    item('kleidung_joel', 'Socken', ALL_CATS, ALL_SEASONS),
+    item('kleidung_joel', 'Spuckhalstuch', ['peukert', 'kurzurlaub'], ALL_SEASONS),
+    item('kleidung_joel', 'Schlafsachen', ALL_CATS, ALL_SEASONS),
+
+    item('schuhe_toni', 'Hausschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_toni', 'Halbschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_toni', 'Sportschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_toni', 'Wanderschuhe', ['urlaub', 'kurzurlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('schuhe_toni', 'gute Schuhe', ['urlaub', 'kurzurlaub', 'peukert'], ALL_SEASONS),
+    item('schuhe_toni', 'Sandalen', ALL_CATS, WARM_SEASONS),
+    item('schuhe_toni', 'Stiefel / Winterschuhe', ALL_CATS, WINTER_ONLY),
+
+    item('schuhe_anna', 'Hausschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_anna', 'Halbschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_anna', 'Sportschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_anna', 'Wanderschuhe', ['urlaub', 'kurzurlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('schuhe_anna', 'gute Schuhe', ['urlaub', 'kurzurlaub', 'peukert'], ALL_SEASONS),
+    item('schuhe_anna', 'Sandalen', ALL_CATS, WARM_SEASONS),
+    item('schuhe_anna', 'Stiefel / Winterschuhe', ALL_CATS, WINTER_ONLY),
+
+    item('schuhe_cara', 'Hausschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_cara', 'Halbschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_cara', 'Barfußschuhe', ALL_CATS, WARM_SEASONS),
+    item('schuhe_cara', 'lila Schuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_cara', 'Gummistiefel', ALL_CATS, ALL_SEASONS),
+    item('schuhe_cara', 'Sandalen', ALL_CATS, WARM_SEASONS),
+    item('schuhe_cara', 'gefütterte Schuhe', ALL_CATS, COLD_SEASONS),
+    item('schuhe_cara', 'Winterschuhe / Winterstiefel', ALL_CATS, WINTER_ONLY),
+
+    item('schuhe_joel', 'Hausschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_joel', 'Lauflernschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_joel', 'Halbschuhe', ALL_CATS, ALL_SEASONS),
+    item('schuhe_joel', 'Gummistiefel', ALL_CATS, ALL_SEASONS),
+    item('schuhe_joel', 'Winterschuhe', ALL_CATS, WINTER_ONLY),
+
+    item('draussen_toni', 'Jacke', ALL_CATS, ALL_SEASONS),
+    item('draussen_toni', 'Regenjacke', ALL_CATS, ALL_SEASONS),
+    item('draussen_toni', 'Regenhose', ALL_CATS, ALL_SEASONS),
+    item('draussen_toni', 'Winterjacke', ALL_CATS, WINTER_ONLY),
+    item('draussen_toni', 'Hut / Mütze', ALL_CATS, COLD_SEASONS),
+    item('draussen_toni', 'Halstuch / Schal', ALL_CATS, COLD_SEASONS),
+    item('draussen_toni', 'Handschuhe', ALL_CATS, WINTER_ONLY),
+    item('draussen_toni', 'Sonnenhut', ALL_CATS, WARM_SEASONS),
+    item('draussen_toni', 'Sonnenbrille', ALL_CATS, WARM_SEASONS),
+
+    item('draussen_anna', 'Jacke', ALL_CATS, ALL_SEASONS),
+    item('draussen_anna', 'Regenjacke', ALL_CATS, ALL_SEASONS),
+    item('draussen_anna', 'Regenhose', ALL_CATS, ALL_SEASONS),
+    item('draussen_anna', 'Winterjacke', ALL_CATS, WINTER_ONLY),
+    item('draussen_anna', 'Hut / Mütze', ALL_CATS, COLD_SEASONS),
+    item('draussen_anna', 'Halstuch / Schal', ALL_CATS, COLD_SEASONS),
+    item('draussen_anna', 'Handschuhe', ALL_CATS, WINTER_ONLY),
+    item('draussen_anna', 'Sonnenhut', ALL_CATS, WARM_SEASONS),
+    item('draussen_anna', 'Sonnenbrille', ALL_CATS, WARM_SEASONS),
+
+    item('draussen_cara', 'Jacken / Softshelljacke', ALL_CATS, ALL_SEASONS),
+    item('draussen_cara', 'Regenjacke', ALL_CATS, ALL_SEASONS),
+    item('draussen_cara', 'Matschhose (ggf. 2x)', ALL_CATS, ALL_SEASONS),
+    item('draussen_cara', 'Anzug / Sterneanzug', ALL_CATS, COLD_SEASONS),
+    item('draussen_cara', 'Mützen', ALL_CATS, COLD_SEASONS),
+    item('draussen_cara', 'Halstuch', ALL_CATS, COLD_SEASONS),
+    item('draussen_cara', 'Handschuhe', ALL_CATS, WINTER_ONLY),
+    item('draussen_cara', 'Sonnenmütze', ALL_CATS, WARM_SEASONS),
+
+    item('draussen_joel', 'Jacke', ALL_CATS, ALL_SEASONS),
+    item('draussen_joel', 'blauer Anzug / Walkanzug', ALL_CATS, COLD_SEASONS),
+    item('draussen_joel', 'Regenanzug (ggf. 2tlg)', ALL_CATS, ALL_SEASONS),
+    item('draussen_joel', 'Matschhose', ALL_CATS, ALL_SEASONS),
+    item('draussen_joel', 'Füßlinge', ALL_CATS, COLD_SEASONS),
+    item('draussen_joel', 'Mützen', ALL_CATS, COLD_SEASONS),
+    item('draussen_joel', 'Halstuch', ALL_CATS, COLD_SEASONS),
+    item('draussen_joel', 'Handschuhe', ALL_CATS, WINTER_ONLY),
+    item('draussen_joel', 'Sonnenmütze', ALL_CATS, WARM_SEASONS),
+
+    item('badesachen', 'Badehose Toni', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Badeanzug Anna', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Badeschlüpfer Cara', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Bade T-Shirt Cara', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Badeanzug / Badehose Joel', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Bade T-Shirt Joel', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Badeschuhe Cara', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Badeschuhe Joel', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Badelatschen', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Badetuch', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Schwimmwindeln', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Schwimmbrille', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Schwimmflügel', URLAUB_KURZ_PEUK, SUMMER_ONLY),
+    item('badesachen', 'Schwimmsitz', ['urlaub'], SUMMER_ONLY),
+
+    item('hygiene_toni', 'Zahnbürste & Zahncreme', ALL_CATS, ALL_SEASONS),
+    item('hygiene_toni', 'Zahnseide', ALL_CATS, ALL_SEASONS),
+    item('hygiene_toni', 'Haarbürste / Kamm', ALL_CATS, ALL_SEASONS),
+    item('hygiene_toni', 'Haargel', ALL_CATS, ALL_SEASONS),
+    item('hygiene_toni', 'Duschbad', ALL_CATS, ALL_SEASONS),
+    item('hygiene_toni', 'Deo / Parfüm', ALL_CATS, ALL_SEASONS),
+    item('hygiene_toni', 'Rasierer & Rasierschaum', ALL_CATS, ALL_SEASONS),
+    item('hygiene_toni', 'Kondome', URLAUB_KURZ_PEUK, ALL_SEASONS),
+    item('hygiene_toni', 'Handtücher Toni (groß/klein)', ['klassenfahrt'], ALL_SEASONS),
+    item('hygiene_toni', 'Föhn Toni / Reiseföhn', ['klassenfahrt', 'urlaub'], ALL_SEASONS),
+
+    item('hygiene_anna', 'Zahnbürste & Zahncreme', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Kamm & Haarspangen', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Shampoo & Duschbad', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Deo / Parfüm', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Handcreme & Hautcreme', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Sonnencreme', ALL_CATS, WARM_SEASONS),
+    item('hygiene_anna', 'Wattestäbchen', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Nagelset & Minispiegel', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Binden / Slipeinlagen', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Stilleinlagen', ALL_CATS, ALL_SEASONS),
+    item('hygiene_anna', 'Waschlappen', ALL_CATS, ALL_SEASONS),
+
+    item('hygiene_cara', 'Zahnbürste & Zahncreme', ALL_CATS, ALL_SEASONS),
+    item('hygiene_cara', 'Bürste, Haarspangen, Zopfhalter', ALL_CATS, ALL_SEASONS),
+    item('hygiene_cara', 'Wattestäbchen', ALL_CATS, ALL_SEASONS),
+    item('hygiene_cara', 'Fingernagelschere', ALL_CATS, ALL_SEASONS),
+    item('hygiene_cara', 'Zeckenzange / Zeckenkarte', ALL_CATS, WARM_SEASONS),
+    item('hygiene_cara', 'Sonnencreme', ALL_CATS, WARM_SEASONS),
+
+    item('hygiene_joel', 'Öl zum Eincremen', ALL_CATS, ALL_SEASONS),
+    item('hygiene_joel', 'Windelbalsam & Melkfett', ALL_CATS, ALL_SEASONS),
+    item('hygiene_joel', 'Weleda Creme & blaue Creme', ALL_CATS, ALL_SEASONS),
+    item('hygiene_joel', 'Wattestäbchen & Waschlappen', ALL_CATS, ALL_SEASONS),
+
+    item('bad', 'Handseife', ['urlaub'], ALL_SEASONS),
+    item('bad', 'Handtücher (klein/groß)', URLAUB_KURZ_PEUK, ALL_SEASONS),
+    item('bad', 'Waschlappen', URLAUB_KURZ_PEUK, ALL_SEASONS),
+    item('bad', 'Toilettenpapier', ['urlaub'], ALL_SEASONS),
+    item('bad', 'Papiertaschentücher', ALL_CATS, ALL_SEASONS),
+    item('bad', 'Föhn', URLAUB_KURZ_PEUK, ALL_SEASONS),
+    item('bad', 'Waschmittel, Wäscheleine, Klammern', ['urlaub'], ALL_SEASONS),
+
+    item('schlaf', 'Bettwäsche / Bettlaken', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Kopfkissen Toni & Zudecke Toni', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Kuschelkissen Anna', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Zudecke Cara, Kuschelkissen, blaue Decke', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Zudecke Joel', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Pullerunterlage / wasserfeste Unterlage', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Spucktücher & Stillkissen', ['kurzurlaub', 'peukert'], ALL_SEASONS),
+    item('schlaf', 'Babyphone', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Wecker', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Schaf & Trinkbecher', ALL_CATS, ALL_SEASONS),
+    item('schlaf', 'Schal + Oropax', ALL_CATS, ALL_SEASONS),
+
+    item('medikamente', 'Pflaster & Mullbinden', ALL_CATS, ALL_SEASONS),
+    item('medikamente', 'Schmerztabletten', ALL_CATS, ALL_SEASONS),
+    item('medikamente', 'Voltaren', ALL_CATS, ALL_SEASONS),
+    item('medikamente', 'Magnesium & weitere Tabletten', ALL_CATS, ALL_SEASONS),
+    item('medikamente', 'Insektenschutzmittel & Mückenstichabtöter', ALL_CATS, WARM_SEASONS),
+    item('medikamente', 'Vitamin D3 (Erwachsene & Kinder)', ALL_CATS, ALL_SEASONS),
+    item('medikamente', 'Fieberthermometer', ALL_CATS, ALL_SEASONS),
+    item('medikamente', 'Nasenspray Cara & Nasenspray Joel', ALL_CATS, ALL_SEASONS),
+    item('medikamente', 'Nasensauger', ['kurzurlaub', 'peukert'], ALL_SEASONS),
+    item('medikamente', 'Barbix, Engelwurz, Kümmel-Öl', ALL_CATS, ALL_SEASONS),
+
+    item('wickelzeug', 'Wickelrucksack & Wickelunterlagen', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'Windeln (Cara / Joel / 5/5+ / Pullerwindeln)', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'Stoffwindeln & Windelüberhosen', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'Waschlappen & Feuchttücher', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'Wetbag (groß & klein) & Mülltüten', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'Wasserschüssel / Dose für Wasser', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'Windeleimer', ['peukert', 'klassenfahrt'], ALL_SEASONS),
+    item('wickelzeug', 'Töpfchen & Toilettenaufsatz', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'Ringelblumensalbe & Ohrenstäbchen', ALL_CATS, ALL_SEASONS),
+    item('wickelzeug', 'ggf. Badeeimer & Handtuch', ['kurzurlaub'], ALL_SEASONS),
+
+    item('essen_stillen', 'Latz Cara & Latz Joel', ALL_CATS, ALL_SEASONS),
+    item('essen_stillen', 'Plasteteller, Plasteschüssel, Plastebecher', ['urlaub'], ALL_SEASONS),
+    item('essen_stillen', 'Stuhl & Stuhlaufsatz', ['peukert'], ALL_SEASONS),
+    item('essen_stillen', 'Spuckwindeln & Wischlappen', ['peukert', 'urlaub'], ALL_SEASONS),
+    item('essen_stillen', 'Körner, Quetsche, Obst, Joghurt, Plätzchen', ['peukert', 'kurzurlaub'], ALL_SEASONS),
+
+    item('kueche', 'Geschirrtücher & Abwaschlappen', URLAUB_ONLY, ALL_SEASONS),
+    item('kueche', 'Spülmittel & Küchenpapier', URLAUB_ONLY, ALL_SEASONS),
+    item('kueche', 'Gewürze (Salz, Pfeffer, Öl, Zucker,…)', URLAUB_ONLY, ALL_SEASONS),
+    item('kueche', 'Müsli & Quetsche', ['urlaub', 'kurzurlaub'], ALL_SEASONS),
+    item('kueche', 'Dosenöffner & Knoblauchpresse', URLAUB_ONLY, ALL_SEASONS),
+    item('kueche', 'Mülltüten', URLAUB_ONLY, ALL_SEASONS),
+
+    item('lebensmittel', 'Wasser, Tee, Kaffee', ['urlaub', 'kurzurlaub'], ALL_SEASONS),
+    item('lebensmittel', 'Brot, Butter, Käse', URLAUB_ONLY, ALL_SEASONS),
+    item('lebensmittel', 'Obst & Gemüse', URLAUB_ONLY, ALL_SEASONS),
+    item('lebensmittel', 'Marmelade, Honig, Nutella', URLAUB_ONLY, ALL_SEASONS),
+    item('lebensmittel', 'Mehl, Nudeln, Reis, Kartoffeln...', URLAUB_ONLY, ALL_SEASONS),
+    item('lebensmittel', 'Kühlschrank prüfen', ['kurzurlaub'], ALL_SEASONS),
+
+    item('reiseverpflegung', 'Brote schmieren / Brötchen', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('reiseverpflegung', 'Obst / Gemüse', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('reiseverpflegung', 'Müsli-Riegel, Kekse, Nüsse, Trockenfrüchte', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('reiseverpflegung', 'Wasserflaschen / Trinkflaschen & Trinkbecher', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('reiseverpflegung', 'Thermoskanne', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('reiseverpflegung', 'Kühlbox', ['urlaub'], WARM_SEASONS),
+
+    item('unterwegs', 'Ruckeli / Tragetuch & Jackenerweiterungen', ALL_CATS, ALL_SEASONS),
+    item('unterwegs', 'Kinderwagen & Babyschale', ALL_CATS, ALL_SEASONS),
+    item('unterwegs', 'Fußsack', ALL_CATS, WINTER_ONLY),
+    item('unterwegs', 'grüne Decke / Campingdecke', ALL_CATS, ALL_SEASONS),
+    item('unterwegs', 'Rucksack Cara', ALL_CATS, ALL_SEASONS),
+    item('unterwegs', 'Laufrad', URLAUB_KURZ_PEUK, WARM_SEASONS),
+    item('unterwegs', 'Fahrräder, Fahrradsitz, Fahrradträger', ['urlaub'], WARM_SEASONS),
+    item('unterwegs', 'Fahrradlicht, Luftpumpe, Flickzeug', ['urlaub'], WARM_SEASONS),
+
+    item('geraete', 'Kamera, Ersatzakku, Ladegerät', ALL_CATS, ALL_SEASONS),
+    item('geraete', 'Stativ', ['urlaub', 'kurzurlaub'], ALL_SEASONS),
+    item('geraete', 'Tablet + Ladekabel', ALL_CATS, ALL_SEASONS),
+    item('geraete', 'Handy + Ladekabel', ALL_CATS, ALL_SEASONS),
+    item('geraete', 'Laptop + Ladekabel', ['urlaub'], ALL_SEASONS),
+    item('geraete', 'Hörbibel + Ladekabel Hörbibel', ['urlaub', 'peukert'], ALL_SEASONS),
+    item('geraete', 'Uhr + Ladekabel', ['kurzurlaub'], ALL_SEASONS),
+    item('geraete', 'Navi', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('geraete', 'Powerbank & Internationaler Adapter', ['urlaub'], ALL_SEASONS),
+    item('geraete', 'Lautsprecher + Ladekabel', ['urlaub'], ALL_SEASONS),
+    item('geraete', 'Kopfhörer + Ladekabel', ALL_CATS, ALL_SEASONS),
+    item('geraete', 'Wecker', ALL_CATS, ALL_SEASONS),
+
+    item('unterhaltung', 'Bibel', ALL_CATS, ALL_SEASONS),
+    item('unterhaltung', 'Musik, Bücher, Spiele, Puzzle, Rätselheft', ['urlaub'], ALL_SEASONS),
+    item('unterhaltung', 'Tagebuch Joel, Tagebuch Cara, Gartenbuch', ['urlaub'], ALL_SEASONS),
+    item('unterhaltung', 'Füller & Patronen, Schreibzeug, Papier, Brille', ['urlaub'], ALL_SEASONS),
+    item('unterhaltung', 'Tischtennisschläger & Federballschläger', ['urlaub'], WARM_SEASONS),
+    item('unterhaltung', 'Bücher Cara, Eva, Käfer, Wimmelbuch, Rüsselbücher', ALL_CATS, ALL_SEASONS),
+    item('unterhaltung', 'Buntstifte, Malbuch, Schere, Leim, Luftballons', ['urlaub'], ALL_SEASONS),
+    item('unterhaltung', 'Kugelbahn Cara, Arztkoffer Cara, Maßband', ['peukert'], ALL_SEASONS),
+    item('unterhaltung', 'Caras „Lebensplan“ & Eule', ['kurzurlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('unterhaltung', 'Spielzeug Joel (Stapelturm, Autos, Musikinstrumente, Zug)', ALL_CATS, ALL_SEASONS),
+    item('unterhaltung', 'Sandspielzeug, Gummibälle, Springseil', ['urlaub'], WARM_SEASONS),
+
+    item('lehrmaterial', 'Bibel (Lehrmaterial)', ['klassenfahrt'], ALL_SEASONS),
+    item('lehrmaterial', 'Schreibzeug & Papier/Heft', ['klassenfahrt'], ALL_SEASONS),
+
+    item('dokumente', 'Portemonnaie, Bargeld, EC-Karte, Visa-Karte + PIN', ALL_CATS, ALL_SEASONS),
+    item('dokumente', 'Ausländisches Geld', ['urlaub'], ALL_SEASONS),
+    item('dokumente', 'Personalausweis, Reisepässe, Führerschein', ALL_CATS, ALL_SEASONS),
+    item('dokumente', 'Krankenkassenkarte & Auslandskrankenversicherung', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('dokumente', 'Reiserücktrittsversicherung / HUK', ['urlaub'], ALL_SEASONS),
+    item('dokumente', 'Autopapiere, Autoversicherung, Vignette', ALL_CATS, ALL_SEASONS),
+    item('dokumente', 'Flugticket & MNB-Attest', ['urlaub', 'kurzurlaub'], ALL_SEASONS),
+    item('dokumente', 'Reiseadresse, Reiseroute, Unterkunft-Nummer', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('dokumente', 'Adressen für Briefe, Stadtpläne, Wanderkarten', ['urlaub'], ALL_SEASONS),
+    item('dokumente', 'Vorwahl Zielland & Sperr-/Notrufnummern', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+
+    item('sonstiges', 'Rucksack & Handtasche', ALL_CATS, ALL_SEASONS),
+    item('sonstiges', 'Regenschirm', ALL_CATS, ALL_SEASONS),
+    item('sonstiges', 'Picknickdecke', ['urlaub', 'kurzurlaub'], WARM_SEASONS),
+    item('sonstiges', 'Taschenlampe + Batterien & Taschenmesser', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('sonstiges', 'Nadel + Faden, Sicherheitsnadeln', ['urlaub'], ALL_SEASONS),
+    item('sonstiges', 'Kerzen, Streichhölzer, Servietten', ['urlaub'], ALL_SEASONS),
+    item('sonstiges', 'Tüten (kleine & große)', ALL_CATS, ALL_SEASONS),
+    item('sonstiges', 'Wasseraufbereiter', ['urlaub'], ALL_SEASONS),
+    item('sonstiges', 'Geschenke / Mitbringsel (Kalender, Rote Beete, Kindersachen)', ['peukert'], ALL_SEASONS),
+
+    item('vor_der_reise', 'Auto überprüfen (Öl, TÜV, Tank, Reifendruck)', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('vor_der_reise', 'Reiseplan überlegen & offene Rechnungen bezahlen', ['urlaub', 'klassenfahrt'], ALL_SEASONS),
+    item('vor_der_reise', 'Reisepass auf Gültigkeit prüfen', ['urlaub'], ALL_SEASONS),
+    item('vor_der_reise', 'Elektrogeräte vom Stromnetz nehmen', ALL_CATS, ALL_SEASONS),
+    item('vor_der_reise', 'Müll entsorgen & Blumen gießen', ALL_CATS, ALL_SEASONS),
+    item('vor_der_reise', 'Nachbarn fragen, Garten gießen, Schlüssel/Zettel Sophie', ['urlaub'], ALL_SEASONS),
+    item('vor_der_reise', 'Wasser aus Wassertonnen ablassen', ['klassenfahrt', 'urlaub'], COLD_SEASONS),
+    item('vor_der_reise', 'Heizung aus, putzen, Fenster zu, Briefkasten leeren', ALL_CATS, ALL_SEASONS)
+  ];
+
+  return { season: 'Sommer', categories: categories, sections: sections, items: items, tempLists: [] };
+}
+
+var appData = null;
+var activeSession = null;
+
+function loadState(callback) {
+  supabaseClient.from('packliste_store').select('*').eq('id', 'master_data').then(function(res) {
+    if (!res.error && res.data && res.data.length > 0) {
+      appData = res.data[0].data;
+      callback();
+    } else {
+      appData = buildDefaultData();
+      saveState();
+      callback();
+    }
+  });
+}
+
+function saveState() {
+  appData.updatedAt = new Date().getTime();
+  localStorage.setItem('unger_packliste_v1', JSON.stringify(appData));
+  supabaseClient.from('packliste_store').upsert({
+    id: 'master_data',
+    data: appData,
+    updated_at: appData.updatedAt
+  }).then(function() {});
+}
+
+function renderHome() {
+  renderSeasonBars();
+  var tempContainer = document.getElementById('temp-lists-container');
+  tempContainer.innerHTML = '';
+  if (!appData.tempLists || appData.tempLists.length === 0) {
+    tempContainer.innerHTML = '<div style="color:#6b7280; font-size:14px;">Noch keine temporäre Packliste gespeichert.</div>';
+  } else {
+    for (var i = 0; i < appData.tempLists.length; i++) {
+      (function(tList) {
+        var selCount = Object.keys(tList.selectedIds || {}).length;
+        var packCount = Object.keys(tList.packedIds || {}).length;
+        var row = document.createElement('div');
+        row.className = 'list-row';
+        row.innerHTML = '<div class="list-row-title" onclick="openTempList(\'' + tList.id + '\')"><div>' + escapeHtml(tList.name) + '</div><div class="list-row-meta">Jahreszeit: ' + tList.season + ' • ' + packCount + ' / ' + selCount + ' gepackt</div></div><button class="btn btn-sm btn-danger" onclick="deleteTempList(\'' + tList.id + '\')">🗑️</button>';
+        tempContainer.appendChild(row);
+      })(appData.tempLists[i]);
+    }
+  }
+
+  var catContainer = document.getElementById('categories-container');
+  catContainer.innerHTML = '';
+  for (var j = 0; j < appData.categories.length; j++) {
+    (function(cat) {
+      var count = countCategoryItems(cat.id, appData.season);
+      var row = document.createElement('div');
+      row.className = 'list-row';
+      row.innerHTML = '<div class="list-row-title" onclick="startFromCategory(\'' + cat.id + '\')"><div>' + escapeHtml(cat.name) + '</div><div class="list-row-meta">' + count + ' aktive Items im ' + appData.season + '</div></div><button class="btn btn-sm btn-danger" onclick="deleteCategory(\'' + cat.id + '\')">🗑️</button>';
+      catContainer.appendChild(row);
+    })(appData.categories[j]);
+  }
+}
+
+function renderSeasonBars() {
+  var bars = ['home-season-bar', 'list-season-bar'];
+  var currentSeason = activeSession ? activeSession.season : appData.season;
+  for (var b = 0; b < bars.length; b++) {
+    var el = document.getElementById(bars[b]);
+    if (!el) continue;
+    el.innerHTML = '';
+    for (var s = 0; s < SEASONS.length; s++) {
+      (function(seasonName) {
+        var btn = document.createElement('button');
+        btn.className = 'season-btn' + (currentSeason === seasonName ? ' active' : '');
+        btn.textContent = seasonName;
+        btn.onclick = function() { changeSeason(seasonName); };
+        el.appendChild(btn);
+      })(SEASONS[s]);
+    }
+  }
+}
+
+function countCategoryItems(catId, season) {
+  var c = 0;
+  for (var i = 0; i < appData.items.length; i++) {
+    var it = appData.items[i];
+    if (arrayContains(it.categories, catId) && arrayContains(it.seasons, season)) c++;
+  }
+  return c;
+}
+
+function changeSeason(newSeason) {
+  appData.season = newSeason;
+  if (activeSession) {
+    activeSession.season = newSeason;
+    if (activeSession.baseCategoryId) {
+      var sel = {};
+      for (var i = 0; i < appData.items.length; i++) {
+        var it = appData.items[i];
+        if (arrayContains(it.categories, activeSession.baseCategoryId) && arrayContains(it.seasons, newSeason)) sel[it.id] = true;
+      }
+      activeSession.selectedIds = sel;
+    }
+    renderListWorkspace();
+  }
+  saveState();
+  renderHome();
+}
+
+function startFromCategory(catId) {
+  var cat = findById(appData.categories, catId);
+  if (!cat) return;
+  var selected = {};
+  for (var i = 0; i < appData.items.length; i++) {
+    var it = appData.items[i];
+    if (arrayContains(it.categories, catId) && arrayContains(it.seasons, appData.season)) selected[it.id] = true;
+  }
+  activeSession = { id: null, name: cat.name, baseCategoryId: cat.id, season: appData.season, mode: 'plan', currentSectionIndex: 0, selectedIds: selected, packedIds: {} };
+  showListView();
+}
+
+function openTempList(tempId) {
+  var t = findById(appData.tempLists, tempId);
+  if (!t) return;
+  activeSession = JSON.parse(JSON.stringify(t));
+  if (!activeSession.currentSectionIndex) activeSession.currentSectionIndex = 0;
+  showListView();
+}
+
+function showListView() {
+  document.getElementById('view-home').className = 'hidden';
+  document.getElementById('view-list').className = '';
+  renderListWorkspace();
+}
+
+function goHome() {
+  activeSession = null;
+  document.getElementById('view-list').className = 'hidden';
+  document.getElementById('view-home').className = '';
+  renderHome();
+}
+
+function setMode(newMode) {
+  if (!activeSession) return;
+  activeSession.mode = newMode;
+  syncActiveTempListIfSaved();
+  renderListWorkspace();
+}
+
+function renderListWorkspace() {
+  if (!activeSession) return;
+  document.getElementById('active-list-title').textContent = activeSession.name;
+  document.getElementById('btn-mode-plan').className = 'mode-btn' + (activeSession.mode === 'plan' ? ' active' : '');
+  document.getElementById('btn-mode-pack').className = 'mode-btn' + (activeSession.mode === 'pack' ? ' active' : '');
+  document.getElementById('list-season-wrapper').className = (activeSession.mode === 'plan') ? '' : 'hidden';
+
+  renderSeasonBars();
+  renderSidebar();
+  renderCurrentSectionItems();
+  updateStatusCounter();
+}
+
+function renderSidebar() {
+  var sb = document.getElementById('section-sidebar');
+  sb.innerHTML = '';
+  for (var i = 0; i < appData.sections.length; i++) {
+    (function(sec, idx) {
+      var badgeText = getSectionBadgeText(sec.id);
+      var div = document.createElement('div');
+      div.className = 'sidebar-item' + (activeSession.currentSectionIndex === idx ? ' active' : '');
+      div.title = sec.name;
+      div.innerHTML = '<span>' + sec.icon + '</span><span class="sidebar-badge">' + badgeText + '</span>';
+      div.onclick = function() { activeSession.currentSectionIndex = idx; renderListWorkspace(); };
+      sb.appendChild(div);
+    })(appData.sections[i], i);
+  }
+}
+
+function getSectionBadgeText(sectionId) {
+  var selCount = 0, packCount = 0;
+  for (var i = 0; i < appData.items.length; i++) {
+    var it = appData.items[i];
+    if (it.sectionId !== sectionId) continue;
+    if (activeSession.selectedIds[it.id]) {
+      selCount++;
+      if (activeSession.packedIds[it.id]) packCount++;
+    }
+  }
+  if (activeSession.mode === 'plan') return '' + selCount;
+  return packCount + '/' + selCount;
+}
+
+function renderCurrentSectionItems() {
+  if (appData.sections.length === 0) return;
+  if (activeSession.currentSectionIndex >= appData.sections.length) activeSession.currentSectionIndex = 0;
+  var sec = appData.sections[activeSession.currentSectionIndex];
+  document.getElementById('current-section-title').textContent = sec.icon + ' ' + sec.name;
+
+  var container = document.getElementById('items-container');
+  container.innerHTML = '';
+  var secItems = [];
+  for (var i = 0; i < appData.items.length; i++) {
+    if (appData.items[i].sectionId === sec.id) secItems.push(appData.items[i]);
+  }
+
+  var visibleCount = 0;
+  for (var j = 0; j < secItems.length; j++) {
+    var item = secItems[j];
+    var isSelected = !!activeSession.selectedIds[item.id];
+    var isPacked = !!activeSession.packedIds[item.id];
+
+    if (activeSession.mode === 'pack' && !isSelected) continue;
+    visibleCount++;
+
+    (function(it, sel, packed) {
+      var row = document.createElement('div');
+      row.className = 'item-row ' + (activeSession.mode === 'plan' ? (sel ? 'item-plan-selected' : 'item-plan-unselected') : (packed ? 'item-pack-done' : 'item-pack-open'));
+      var prefix = (activeSession.mode === 'pack') ? (packed ? '✓ ' : '☐ ') : '';
+      var seasonInfo = (it.seasons && it.seasons.length < 4) ? it.seasons.join(', ') : '';
+
+      var labelDiv = document.createElement('div');
+      labelDiv.className = 'item-label';
+      labelDiv.textContent = prefix + it.name;
+      row.appendChild(labelDiv);
+
+      if (activeSession.mode === 'plan' && seasonInfo) {
+        var sSpan = document.createElement('span');
+        sSpan.className = 'item-Seasons';
+        sSpan.textContent = seasonInfo;
+        row.appendChild(sSpan);
+      }
+
+      if (activeSession.mode === 'plan') {
+        var delBtn = document.createElement('button');
+        delBtn.className = 'item-delete no-print';
+        delBtn.innerHTML = '×';
+        delBtn.onclick = function(ev) { ev.stopPropagation(); deleteItemPermanently(it.id); };
+        row.appendChild(delBtn);
+      }
+
+      row.onclick = function() {
+        if (activeSession.mode === 'plan') {
+          if (activeSession.selectedIds[it.id]) { delete activeSession.selectedIds[it.id]; delete activeSession.packedIds[it.id]; }
+          else { activeSession.selectedIds[it.id] = true; }
+        } else {
+          if (activeSession.packedIds[it.id]) { delete activeSession.packedIds[it.id]; }
+          else { activeSession.packedIds[it.id] = true; }
+        }
+        syncActiveTempListIfSaved();
+        renderListWorkspace();
+      };
+      container.appendChild(row);
+    })(item, isSelected, isPacked);
+  }
+  if (visibleCount === 0) container.innerHTML = '<div style="padding:20px; text-align:center; color:#6b7280;">Keine Items in diesem Bereich.</div>';
+}
+
+function updateStatusCounter() {
+  var totalSel = Object.keys(activeSession.selectedIds).length;
+  var totalPack = Object.keys(activeSession.packedIds).length;
+  document.getElementById('status-counter').textContent = (activeSession.mode === 'plan') ? (totalSel + ' Items ausgewählt') : (totalPack + ' von ' + totalSel + ' eingepackt');
+}
+
+function prevSection() {
+  if (!activeSession || appData.sections.length === 0) return;
+  activeSession.currentSectionIndex = (activeSession.currentSectionIndex - 1 + appData.sections.length) % appData.sections.length;
+  renderListWorkspace();
+  document.getElementById('swipe-area').scrollTop = 0;
+}
+
+function nextSection() {
+  if (!activeSession || appData.sections.length === 0) return;
+  activeSession.currentSectionIndex = (activeSession.currentSectionIndex + 1) % appData.sections.length;
+  renderListWorkspace();
+  document.getElementById('swipe-area').scrollTop = 0;
+}
+
+(function initSwipe() {
+  var touchStartX = 0, touchStartY = 0;
+  var area = document.getElementById('swipe-area');
+  area.addEventListener('touchstart', function(e) { if (e.touches.length > 0) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; } }, false);
+  area.addEventListener('touchend', function(e) {
+    if (e.changedTouches.length === 0) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+      if (dx < 0) nextSection(); else prevSection();
+    }
+  }, false);
+})();
+
+function openSaveModal() {
+  var catName = activeSession.name;
+  if (activeSession.baseCategoryId) {
+    var c = findById(appData.categories, activeSession.baseCategoryId);
+    if (c) catName = c.name;
+  }
+  document.getElementById('save-cat-name').textContent = catName;
+  document.getElementById('modal-save').className = 'modal-backdrop';
+}
+
+function saveTemporaryList() {
+  var name = prompt('Name für die temporäre Packliste:', activeSession.name);
+  if (!name) return;
+  activeSession.name = name;
+  if (!activeSession.id) {
+    activeSession.id = 'temp_' + new Date().getTime();
+    appData.tempLists.push(JSON.parse(JSON.stringify(activeSession)));
+  } else {
+    syncActiveTempListIfSaved();
+  }
+  saveState();
+  closeModal('modal-save');
+  renderListWorkspace();
+}
+
+function syncActiveTempListIfSaved() {
+  if (!activeSession || !activeSession.id) return;
+  for (var i = 0; i < appData.tempLists.length; i++) {
+    if (appData.tempLists[i].id === activeSession.id) {
+      appData.tempLists[i] = JSON.parse(JSON.stringify(activeSession));
+      saveState();
+      return;
+    }
+  }
+}
+
+function overwriteCurrentCategory() {
+  var catId = activeSession.baseCategoryId || appData.categories[0].id;
+  var cat = findById(appData.categories, catId);
+  if (!cat) return;
+  for (var i = 0; i < appData.items.length; i++) {
+    var it = appData.items[i];
+    var isBlack = !!activeSession.selectedIds[it.id];
+    var hasCat = arrayContains(it.categories, catId);
+    if (isBlack && !hasCat) it.categories.push(catId);
+    else if (!isBlack && hasCat) it.categories = removeFromArray(it.categories, catId);
+    if (isBlack && !arrayContains(it.seasons, activeSession.season)) it.seasons.push(activeSession.season);
+  }
+  saveState();
+  closeModal('modal-save');
+  alert('Kategorie „' + cat.name + '“ aktualisiert.');
+}
+
+function saveAsNewCategory() {
+  var name = prompt('Name der neuen Kategorie:');
+  if (!name) return;
+  var newCatId = 'cat_' + new Date().getTime();
+  appData.categories.push({ id: newCatId, name: name });
+  for (var i = 0; i < appData.items.length; i++) {
+    var it = appData.items[i];
+    if (activeSession.selectedIds[it.id]) {
+      it.categories.push(newCatId);
+      if (!arrayContains(it.seasons, activeSession.season)) it.seasons.push(activeSession.season);
+    }
+  }
+  activeSession.baseCategoryId = newCatId;
+  activeSession.name = name;
+  saveState();
+  closeModal('modal-save');
+  renderListWorkspace();
+}
+
+function createEmptyCategoryPrompt() {
+  var name = prompt('Name der neuen Kategorie:');
+  if (!name) return;
+  appData.categories.push({ id: 'cat_' + new Date().getTime(), name: name });
+  saveState();
+  renderHome();
+}
+
+function deleteCategory(catId) {
+  var cat = findById(appData.categories, catId);
+  if (!cat || !confirm('Kategorie wirklich löschen?')) return;
+  appData.categories = appData.categories.filter(function(c) { return c.id !== catId; });
+  saveState();
+  renderHome();
+}
+
+function deleteTempList(tempId) {
+  if (!confirm('Temporäre Packliste löschen?')) return;
+  appData.tempLists = appData.tempLists.filter(function(t) { return t.id !== tempId; });
+  saveState();
+  renderHome();
+}
+
+function deleteItemPermanently(itemId) {
+  if (!confirm('Item dauerhaft löschen?')) return;
+  appData.items = appData.items.filter(function(x) { return x.id !== itemId; });
+  if (activeSession) { delete activeSession.selectedIds[itemId]; delete activeSession.packedIds[itemId]; }
+  saveState();
+  renderListWorkspace();
+}
+
+function openNewItemModal(preselectCurrentSection) {
+  document.getElementById('new-item-name').value = '';
+  var secSelect = document.getElementById('new-item-section');
+  secSelect.innerHTML = '';
+  for (var i = 0; i < appData.sections.length; i++) {
+    var s = appData.sections[i];
+    var opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.icon + ' ' + s.name;
+    if (preselectCurrentSection && activeSession && activeSession.currentSectionIndex === i) opt.selected = true;
+    secSelect.appendChild(opt);
+  }
+  var catDiv = document.getElementById('new-item-categories');
+  catDiv.innerHTML = '';
+  for (var j = 0; j < appData.categories.length; j++) {
+    var c = appData.categories[j];
+    catDiv.innerHTML += '<label class="checkbox-pill"><input type="checkbox" class="new-item-cat-cb" value="' + c.id + '" checked> ' + escapeHtml(c.name) + '</label>';
+  }
+  var seaDiv = document.getElementById('new-item-seasons');
+  seaDiv.innerHTML = '';
+  for (var k = 0; k < SEASONS.length; k++) {
+    seaDiv.innerHTML += '<label class="checkbox-pill"><input type="checkbox" class="new-item-sea-cb" value="' + SEASONS[k] + '" checked> ' + SEASONS[k] + '</label>';
+  }
+  document.getElementById('modal-item').className = 'modal-backdrop';
+}
+
+function saveNewItem() {
+  var name = document.getElementById('new-item-name').value.trim();
+  if (!name) return;
+  var secId = document.getElementById('new-item-section').value;
+  var cats = [], catBoxes = document.getElementsByClassName('new-item-cat-cb');
+  for (var i = 0; i < catBoxes.length; i++) { if (catBoxes[i].checked) cats.push(catBoxes[i].value); }
+  var seas = [], seaBoxes = document.getElementsByClassName('new-item-sea-cb');
+  for (var j = 0; j < seaBoxes.length; j++) { if (seaBoxes[j].checked) seas.push(seaBoxes[j].value); }
+
+  var newItem = { id: 'item_' + new Date().getTime(), sectionId: secId, name: name, categories: cats, seasons: seas };
+  appData.items.push(newItem);
+  if (activeSession) { activeSession.selectedIds[newItem.id] = true; renderListWorkspace(); }
+  else { renderHome(); }
+  saveState();
+  closeModal('modal-item');
+}
+
+function openSectionManager() {
+  renderSectionManagerList();
+  document.getElementById('modal-sections').className = 'modal-backdrop';
+}
+
+function renderSectionManagerList() {
+  var list = document.getElementById('sections-manager-list');
+  list.innerHTML = '';
+  for (var i = 0; i < appData.sections.length; i++) {
+    (function(sec) {
+      var row = document.createElement('div');
+      row.className = 'list-row';
+      row.innerHTML = '<div><strong>' + sec.icon + ' ' + escapeHtml(sec.name) + '</strong></div><div><button class="btn btn-sm btn-light" onclick="renameSection(\'' + sec.id + '\')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteSection(\'' + sec.id + '\')">🗑️</button></div>';
+      list.appendChild(row);
+    })(appData.sections[i]);
+  }
+}
+
+function addSection() {
+  var icon = document.getElementById('new-sec-icon').value.trim() || '📦';
+  var name = document.getElementById('new-sec-name').value.trim();
+  if (!name) return;
+  appData.sections.push({ id: 'sec_' + new Date().getTime(), icon: icon, name: name });
+  document.getElementById('new-sec-icon').value = '';
+  document.getElementById('new-sec-name').value = '';
+  saveState();
+  renderSectionManagerList();
+}
+
+function renameSection(secId) {
+  var sec = findById(appData.sections, secId);
+  if (!sec) return;
+  var newIcon = prompt('Symbol:', sec.icon);
+  var newName = prompt('Name:', sec.name);
+  if (newIcon && newName) { sec.icon = newIcon; sec.name = newName; saveState(); renderSectionManagerList(); }
+}
+
+function deleteSection(secId) {
+  var sec = findById(appData.sections, secId);
+  if (!sec || !confirm('Bereich löschen?')) return;
+  appData.sections = appData.sections.filter(function(s) { return s.id !== secId; });
+  appData.items = appData.items.filter(function(it) { return it.sectionId !== secId; });
+  saveState();
+  renderSectionManagerList();
+}
+
+function closeModal(id) { document.getElementById(id).className = 'modal-backdrop hidden'; }
+function arrayContains(arr, val) { if (!arr) return false; for (var i = 0; i < arr.length; i++) { if (arr[i] === val) return true; } return false; }
+function removeFromArray(arr, val) { var out = []; for (var i = 0; i < arr.length; i++) { if (arr[i] !== val) out.push(arr[i]); } return out; }
+function findById(arr, id) { for (var i = 0; i < arr.length; i++) { if (arr[i].id === id) return arr[i]; } return null; }
+function escapeHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+loadState(function() { renderHome(); });
+</script>
+</body>
+</html>
